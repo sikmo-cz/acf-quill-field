@@ -1,0 +1,211 @@
+# Copyright (C) 2025 acffqe
+# This file is distributed under the same license as the acffqe package.
+msgid ""
+msgstr ""
+"Project-Id-Version: acffqe\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: šikmo <jdeme@sikmo.cz>\n"
+"Last-Translator: šikmo <jdeme@sikmo.cz>\n"
+"POT-Creation-Date: 2025-04-30 07:17+0000\n"
+"Report-Msgid-Bugs-To: https://www.sikmo.cz/\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-KeywordsList: __;_e;_ex:1,2c;_n:1,2;_n_noop:1,2;_nx:1,2,4c;_nx_noop:1,2,3c;_x:1,2c;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.js\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. translators: 1: Opening <strong> tag, 2: closing </strong> tag.
+#: includes/activation.php:21
+msgid "%1$sACF Field: Quill Editor%2$s requires the Advanced Custom Fields (free or Pro) plugin. Please install & activate ACF, then retry."
+msgstr ""
+
+#: includes/activation.php:29
+msgid "Plugin dependency check failed"
+msgstr ""
+
+#: includes/activation.php:66
+msgid "ACF Field: Quill Editor has been deactivated because Advanced Custom Fields (ACF) is not active. Please activate ACF and then reactivate ACF Field: Quill Editor."
+msgstr ""
+
+#: includes/field.php:9
+msgid "Quill Editor"
+msgstr ""
+
+#: includes/link-template.php:8
+msgid "Create / edit link"
+msgstr ""
+
+#: includes/link-template.php:10
+msgid "URL"
+msgstr ""
+
+#: includes/link-template.php:13
+msgid "Title"
+msgstr ""
+
+#: includes/link-template.php:16
+msgid "CSS class"
+msgstr ""
+
+#: includes/link-template.php:21
+msgid "Open link in new tab"
+msgstr ""
+
+#: includes/link-template.php:24
+msgid "Rel attribute"
+msgstr ""
+
+#: includes/link-template.php:30
+msgid "Add rel=\"nofollow\""
+msgstr ""
+
+#: includes/link-template.php:34
+msgid "Add rel=\"sponsored\""
+msgstr ""
+
+#: includes/link-template.php:39
+msgid "Remove link"
+msgstr ""
+
+#: includes/link-template.php:41
+msgid "Cancel"
+msgstr ""
+
+#: includes/link-template.php:42
+msgid "Save"
+msgstr ""
+
+#: includes/translations.php:6
+msgid "write something beatifull"
+msgstr ""
+
+#: includes/translations.php:9
+msgid "Align left"
+msgstr ""
+
+#: includes/translations.php:10
+msgid "Align center"
+msgstr ""
+
+#: includes/translations.php:11
+msgid "Align right"
+msgstr ""
+
+#: includes/translations.php:12
+msgid "Remove align"
+msgstr ""
+
+#: includes/translations.php:13
+msgid "Edit image"
+msgstr ""
+
+#: includes/translations.php:14
+msgid "Delete image"
+msgstr ""
+
+#: includes/translations.php:17
+msgid "Bold"
+msgstr ""
+
+#: includes/translations.php:18
+msgid "Italic"
+msgstr ""
+
+#: includes/translations.php:19
+msgid "Underline"
+msgstr ""
+
+#: includes/translations.php:20
+msgid "Strike"
+msgstr ""
+
+#: includes/translations.php:21
+msgid "Create link"
+msgstr ""
+
+#: includes/translations.php:23
+msgid "Color"
+msgstr ""
+
+#: includes/translations.php:24
+msgid "Background color"
+msgstr ""
+
+#: includes/translations.php:26
+msgid "Align to block"
+msgstr ""
+
+#: includes/translations.php:28
+msgid "Bullet list"
+msgstr ""
+
+#: includes/translations.php:29
+msgid "Numbered list"
+msgstr ""
+
+#: includes/translations.php:31
+msgid "Indent +"
+msgstr ""
+
+#: includes/translations.php:32
+msgid "Indent -"
+msgstr ""
+
+#: includes/translations.php:34
+msgid "Top index"
+msgstr ""
+
+#: includes/translations.php:35
+msgid "Bottom index"
+msgstr ""
+
+#: includes/translations.php:37
+msgid "Quote"
+msgstr ""
+
+#: includes/translations.php:38
+msgid "Code inline"
+msgstr ""
+
+#: includes/translations.php:39
+msgid "Code block"
+msgstr ""
+
+#: includes/translations.php:41
+msgid "Remove formatting"
+msgstr ""
+
+#: includes/translations.php:43
+msgid "Select an image from WP Media"
+msgstr ""
+
+#: includes/translations.php:46
+msgid "opens in new tab"
+msgstr ""
+
+#: includes/translations.php:49
+msgid "Custom Format"
+msgstr ""
+
+#: includes/translations.php:50
+msgid "Remove Format"
+msgstr ""
+
+#: includes/translations.php:53
+msgid "Path"
+msgstr ""
+
+#: includes/translations.php:54
+msgid "None"
+msgstr ""
+
+#: includes/translations.php:55
+msgid "Path not available"
+msgstr ""
+
+#: includes/translations.php:58
+msgid "Word count"
+msgstr ""

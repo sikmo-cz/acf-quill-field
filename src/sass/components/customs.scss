@@ -1,0 +1,21 @@
+/* Custom styles for Quill custom inline format dropdown */
+
+/* Make format dropdown more user-friendly */
+.ql-custom-inline {
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #333;
+    font-family: inherit;
+    font-size: 14px;
+    height: 24px;
+    margin: 0;
+    padding: 0 5px;
+    min-width: 120px;
+    cursor: pointer;
+}
+
+/* Improve appearance of dropdown options */
+.ql-custom-inline option {
+    padding: 5px;
+}

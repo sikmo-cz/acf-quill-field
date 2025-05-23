@@ -1,0 +1,42 @@
+/* CSS Styles for Quill Editor Info */
+
+.quill-editor-info {
+	padding: 5px 10px;
+	border-left: 1px solid #ccc;
+	border-right: 1px solid #ccc;
+	border-bottom: 1px solid #ccc;
+	font-size: 12px;
+	color: #666;
+	display: flex;
+	justify-content: space-between;
+	background: #f9f9f9;
+}
+
+.quill-word-count {
+	font-weight: 600;
+}
+
+.quill-path-display {
+	max-width: 70%;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Style for highlighting the current element in the path */
+.quill-path-display .current-element {
+	font-weight: bold;
+	color: #0073aa;
+}
+  
+/* Make the info bar responsive */
+@media (max-width: 600px) {
+	.quill-editor-info {
+		flex-direction: column;
+		gap: 5px;
+	}
+	
+	.quill-path-display {
+		max-width: 100%;
+	}
+}

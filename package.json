@@ -1,0 +1,53 @@
+{
+	"name": "sikmo.cz",
+	"version": "1.0.0",
+	"description": "Šikmo.cz theme.",
+	"main": "gulpfile.mjs",
+	"type": "module",
+	"devDependencies": {
+		"@babel/core": "7.25.2",
+		"@babel/plugin-transform-class-properties": "7.25.4",
+		"@babel/preset-env": "7.25.4",
+		"autoprefixer": "10.4.20",
+		"babel-loader": "9.2.1",
+		"chalk": "5.3.0",
+		"cssnano": "7.0.6",
+		"glob": "^11.0.0",
+		"gulp": "5.0.0",
+		"gulp-babel": "8.0.0",
+		"gulp-concat": "2.6.1",
+		"gulp-livereload": "4.0.2",
+		"gulp-load-plugins": "^2.0.3",
+		"gulp-minify": "^3.1.0",
+		"gulp-plumber": "^1.2.1",
+		"gulp-postcss": "10.0.0",
+		"gulp-rename": "^2.0.0",
+		"gulp-sass": "^5.1.0",
+		"gulp-sort": "2.0.0",
+		"gulp-sourcemaps": "^2.6.5",
+		"gulp-strip-css-comments": "3.0.0",
+		"gulp-uglify": "3.0.2",
+		"path": "0.12.7",
+		"postcss": "^8.4.47",
+		"sass": "^1.63.6",
+		"webpack": "5.95.0",
+		"webpack-stream": "7.0.0"
+	},
+	"scripts": {
+		"setup": "gulp setup --silent",
+		"dev": "gulp --silent",
+		"build": " gulp"
+	},
+	"author": "Pavel Mareš <jdeme@sikmo.cz>",
+	"license": "All rights reserved",
+	"private": true,
+	"browserslist": "> 0.25%, not dead",
+	"volta": {
+		"node": "22.11.0"
+	},
+	"dependencies": {
+		"gulp-notify": "^5.0.0",
+		"gulp-wp-pot": "^2.5.0",
+		"url": "^0.11.4"
+	}
+}
