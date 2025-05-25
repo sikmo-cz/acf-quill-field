@@ -3,7 +3,7 @@
 	 * Plugin Name:		ACF Field: Quill Editor
 	 * Plugin URI:		https://github.com/sikmo-cz/acf-quill-field
 	 * Description:		QuilJS WYSIWYG editor instead of old TinyMCE
-	 * Version:			0.0.3
+	 * Version:			0.0.4
 	 * Author:			šikmo.cz / Pavel Mareš
 	 * Author URI:		https://www.sikmo.cz
 	 * Text Domain:		acffqe
@@ -14,7 +14,7 @@
 
 	defined( 'ABSPATH' ) || exit;
 
-	define( 'ACFFQE_VERSION', '0.0.3' );
+	define( 'ACFFQE_VERSION', '0.0.4' );
 
 	define( 'ACFFQE_FILE', __FILE__ );
 	define( 'ACFFQE_PATH', __DIR__ );
