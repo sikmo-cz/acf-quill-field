@@ -3,7 +3,8 @@
 	defined( 'ABSPATH' ) || exit;
 
 	/**
-	 * Enhanced GitHub Plugin Updater Class
+	 * Debug GitHub Plugin Updater Class
+	 * Includes extensive logging and debugging
 	 */
 	class ACFFQE_GitHub_Updater {
 	
@@ -24,73 +25,139 @@
 			$this->github_username = $github_username;
 			$this->github_repo = $github_repo;
 			$this->github_access_token = $access_token;
-			$this->transient_key = 'acffqe_github_update_' . md5( $this->plugin_basename );
+			$this->transient_key = 'acffqe_github_update_' . md5($this->plugin_basename);
 	
+			$this->debug_log('Updater initialized with version: ' . $this->version);
 			$this->init_hooks();
+		}
+	
+		/**
+		 * Debug logging function
+		 */
+		private function debug_log($message) {
+			if (defined('WP_DEBUG') && WP_DEBUG) {
+				error_log('ACFFQE Updater: ' . $message);
+			}
 		}
 	
 		/**
 		 * Initialize WordPress hooks
 		 */
 		private function init_hooks() {
-			add_filter( 'pre_set_site_transient_update_plugins', [ $this, 'check_for_update' ] );
-			add_filter( 'plugins_api', [ $this, 'plugin_popup' ], 10, 3 );
-			add_filter( 'upgrader_post_install', [ $this, 'after_install' ], 10, 3 );
-			add_action( 'upgrader_process_complete', [ $this, 'purge_cache' ], 10, 2 );
+			add_filter('pre_set_site_transient_update_plugins', [$this, 'check_for_update']);
+			add_filter('plugins_api', [$this, 'plugin_popup'], 10, 3);
+			add_filter('upgrader_post_install', [$this, 'after_install'], 10, 3);
+			add_action('upgrader_process_complete', [$this, 'purge_cache'], 10, 2);
 			
 			// Add custom update message
-			add_action( 'in_plugin_update_message-' . $this->plugin_basename, [ $this, 'show_update_message' ], 10, 2 );
+			add_action('in_plugin_update_message-' . $this->plugin_basename, [$this, 'show_update_message'], 10, 2);
 			
 			// Add settings link for manual update check
-			add_filter( 'plugin_action_links_' . $this->plugin_basename, [ $this, 'plugin_action_links' ] );
+			add_filter('plugin_action_links_' . $this->plugin_basename, [$this, 'plugin_action_links']);
 			
 			// Handle manual update check
-			add_action( 'wp_ajax_acffqe_check_update', [ $this, 'ajax_check_update' ] );
+			add_action('wp_ajax_acffqe_check_update', [$this, 'ajax_check_update']);
+			
+			// Add debug info to admin
+			add_action('admin_notices', [$this, 'show_debug_info']);
+		}
+	
+		/**
+		 * Show debug information in admin
+		 */
+		public function show_debug_info() {
+			if (!current_user_can('manage_options') || !isset($_GET['acffqe_debug'])) {
+				return;
+			}
+	
+			$remote_info = $this->get_remote_info();
+			$cached_data = get_transient($this->transient_key);
+			
+			echo '<div class="notice notice-info">';
+			echo '<h3>ACFFQE Debug Information</h3>';
+			echo '<p><strong>Current Version:</strong> ' . $this->version . '</p>';
+			echo '<p><strong>Plugin Basename:</strong> ' . $this->plugin_basename . '</p>';
+			echo '<p><strong>Plugin Slug:</strong> ' . $this->plugin_slug . '</p>';
+			echo '<p><strong>GitHub Repo:</strong> ' . $this->github_username . '/' . $this->github_repo . '</p>';
+			
+			if ($remote_info) {
+				echo '<p><strong>Remote Version:</strong> ' . $remote_info['version'] . '</p>';
+				echo '<p><strong>Version Compare:</strong> ' . (version_compare($this->version, $remote_info['version'], '<') ? 'Update Available' : 'Up to Date') . '</p>';
+			} else {
+				echo '<p><strong>Remote Info:</strong> Failed to fetch</p>';
+			}
+			
+			echo '<p><strong>Cached Data:</strong> ' . (empty($cached_data) ? 'None' : 'Present') . '</p>';
+			echo '<p><strong>Transient Key:</strong> ' . $this->transient_key . '</p>';
+			echo '</div>';
 		}
 	
 		/**
 		 * Check for plugin updates
 		 */
 		public function check_for_update($transient) {
+			$this->debug_log('check_for_update called');
+			
 			if (empty($transient->checked)) {
+				$this->debug_log('No checked plugins, returning early');
 				return $transient;
 			}
 	
-			// Don't check too frequently
-			$cached_response = get_transient( $this->transient_key );
+			// Skip cache for debug mode
+			$skip_cache = isset($_GET['acffqe_debug']) || isset($_GET['force-check']);
+			
+			// Don't check too frequently (unless debugging)
+			$cached_response = $skip_cache ? false : get_transient($this->transient_key);
 			if ($cached_response !== false) {
+				$this->debug_log('Using cached response');
 				if (isset($cached_response['new_version']) && version_compare($this->version, $cached_response['new_version'], '<')) {
 					$transient->response[$this->plugin_basename] = (object) $cached_response;
+					$this->debug_log('Added cached update to transient');
 				}
 				return $transient;
 			}
 	
 			// Get remote version info
+			$this->debug_log('Fetching remote info...');
 			$remote_info = $this->get_remote_info();
 			
-			if ($remote_info && isset($remote_info['version']) && version_compare($this->version, $remote_info['version'], '<')) {
-				$update_data = [
-					'slug' => $this->plugin_slug,
-					'plugin' => $this->plugin_basename,
-					'new_version' => $remote_info['version'],
-					'url' => $this->get_github_repo_url(),
-					'package' => $remote_info['download_url'],
-					'icons' => [],
-					'banners' => [],
-					'banners_rtl' => [],
-					'tested' => get_bloginfo('version'),
-					'requires_php' => '7.4',
-					'compatibility' => [],
-					'update_message' => $this->get_update_message($remote_info)
-				];
+			if ($remote_info && isset($remote_info['version'])) {
+				$this->debug_log('Remote version: ' . $remote_info['version'] . ', Current: ' . $this->version);
 				
-				// Cache the response for 12 hours
-				set_transient($this->transient_key, $update_data, 12 * HOUR_IN_SECONDS);
-				
-				$transient->response[$this->plugin_basename] = (object) $update_data;
+				if (version_compare($this->version, $remote_info['version'], '<')) {
+					$this->debug_log('Update available, preparing update data');
+					
+					$update_data = [
+						'slug' => $this->plugin_slug,
+						'plugin' => $this->plugin_basename,
+						'new_version' => $remote_info['version'],
+						'url' => $this->get_github_repo_url(),
+						'package' => $remote_info['download_url'],
+						'icons' => [],
+						'banners' => [],
+						'banners_rtl' => [],
+						'tested' => get_bloginfo('version'),
+						'requires_php' => '7.4',
+						'compatibility' => [],
+						'update_message' => $this->get_update_message($remote_info)
+					];
+					
+					// Cache the response for 12 hours
+					set_transient($this->transient_key, $update_data, 12 * HOUR_IN_SECONDS);
+					
+					$transient->response[$this->plugin_basename] = (object) $update_data;
+					$this->debug_log('Update data added to transient');
+					
+					// Also force WordPress to refresh its update cache
+					delete_site_transient('update_plugins');
+					$this->debug_log('WordPress update cache cleared');
+				} else {
+					$this->debug_log('No update needed');
+					// Cache empty response for 6 hours
+					set_transient($this->transient_key, ['no_update' => true], 6 * HOUR_IN_SECONDS);
+				}
 			} else {
-				// Cache empty response for 6 hours
-				set_transient($this->transient_key, ['no_update' => true], 6 * HOUR_IN_SECONDS);
+				$this->debug_log('Failed to get remote info');
 			}
 	
 			return $transient;
@@ -100,19 +167,23 @@
 		 * Get remote repository information
 		 */
 		private function get_remote_info() {
+			$this->debug_log('Getting remote info from: ' . $this->get_api_url());
+			
 			$request = wp_remote_get($this->get_api_url(), [
 				'timeout' => 15,
 				'headers' => $this->get_api_headers()
 			]);
 			
 			if (is_wp_error($request)) {
-				error_log('ACFFQE GitHub Updater Error: ' . $request->get_error_message());
+				$this->debug_log('API request failed: ' . $request->get_error_message());
 				return false;
 			}
 	
 			$response_code = wp_remote_retrieve_response_code($request);
+			$this->debug_log('API response code: ' . $response_code);
+			
 			if ($response_code !== 200) {
-				error_log('ACFFQE GitHub Updater Error: HTTP ' . $response_code);
+				$this->debug_log('Non-200 response: ' . wp_remote_retrieve_body($request));
 				return false;
 			}
 	
@@ -120,12 +191,15 @@
 			$data = json_decode($body, true);
 			
 			if (!$data || !isset($data['tag_name'])) {
-				error_log('ACFFQE GitHub Updater Error: Invalid response data');
+				$this->debug_log('Invalid response data or missing tag_name');
 				return false;
 			}
 	
+			$version = ltrim($data['tag_name'], 'v');
+			$this->debug_log('Parsed remote version: ' . $version);
+	
 			return [
-				'version' => ltrim($data['tag_name'], 'v'),
+				'version' => $version,
 				'download_url' => $data['zipball_url'] ?? $this->get_download_url(),
 				'release_notes' => $data['body'] ?? '',
 				'published_at' => $data['published_at'] ?? '',
@@ -171,6 +245,31 @@
 		}
 	
 		/**
+		 * Get update message
+		 */
+		private function get_update_message($remote_info) {
+			$message = sprintf(
+				__('A new version (%s) is available from GitHub.', 'acffqe'),
+				$remote_info['version']
+			);
+			
+			if (!empty($remote_info['prerelease'])) {
+				$message .= ' ' . __('This is a pre-release version.', 'acffqe');
+			}
+			
+			return $message;
+		}
+	
+		/**
+		 * Show custom update message in plugins list
+		 */
+		public function show_update_message($plugin_data, $response) {
+			if (isset($response->update_message)) {
+				echo '<br />' . wp_kses_post($response->update_message);
+			}
+		}
+	
+		/**
 		 * Show plugin information popup
 		 */
 		public function plugin_popup($result, $action, $args) {
@@ -199,7 +298,7 @@
 				],
 				'download_link' => $remote_info['download_url'],
 				'last_updated' => $remote_info['published_at'],
-				'requires' => '6.0',
+				'requires' => '5.0',
 				'tested' => get_bloginfo('version'),
 				'requires_php' => '7.4',
 				'compatibility' => []
@@ -228,31 +327,6 @@
 		}
 	
 		/**
-		 * Get update message
-		 */
-		private function get_update_message($remote_info) {
-			$message = sprintf(
-				__('A new version (%s) is available from GitHub.', 'acffqe'),
-				$remote_info['version']
-			);
-			
-			if (!empty($remote_info['prerelease'])) {
-				$message .= ' ' . __('This is a pre-release version.', 'acffqe');
-			}
-			
-			return $message;
-		}
-	
-		/**
-		 * Show custom update message in plugins list
-		 */
-		public function show_update_message($plugin_data, $response) {
-			if (isset($response->update_message)) {
-				echo '<br />' . wp_kses_post($response->update_message);
-			}
-		}
-	
-		/**
 		 * Perform additional actions after plugin install
 		 */
 		public function after_install($response, $hook_extra, $result) {
@@ -277,6 +351,8 @@
 		public function purge_cache($upgrader, $hook_extra) {
 			if (isset($hook_extra['plugins']) && in_array($this->plugin_basename, $hook_extra['plugins'])) {
 				delete_transient($this->transient_key);
+				delete_site_transient('update_plugins');
+				$this->debug_log('Update caches purged after successful update');
 			}
 		}
 	
@@ -285,6 +361,13 @@
 		 */
 		public function plugin_action_links($links) {
 			$check_update_link = '<a href="#" id="acffqe-check-update" data-nonce="' . wp_create_nonce('acffqe_check_update') . '">' . __('Check for updates', 'acffqe') . '</a>';
+			
+			// Add debug link for admins
+			if (current_user_can('manage_options')) {
+				$debug_link = '<a href="' . add_query_arg('acffqe_debug', '1') . '">' . __('Debug Info', 'acffqe') . '</a>';
+				array_unshift($links, $debug_link);
+			}
+			
 			array_unshift($links, $check_update_link);
 			
 			// Add inline script for AJAX update check
@@ -309,12 +392,13 @@
 					
 					$.post(ajaxurl, {
 						action: 'acffqe_check_update',
-						nonce: $link.data('nonce')
+						nonce: $link.data('nonce'),
+						force_refresh: true
 					}, function(response) {
 						if (response.success) {
 							if (response.data.update_available) {
-								alert('<?php _e('Update available! Please refresh the page to see the update.', 'acffqe'); ?>');
-								location.reload();
+								// Force refresh WordPress update check
+								window.location.href = window.location.href + (window.location.href.indexOf('?') > -1 ? '&' : '?') + 'force-check=1&t=' + Date.now();
 							} else {
 								alert('<?php _e('Your plugin is up to date!', 'acffqe'); ?>');
 							}
@@ -338,14 +422,65 @@
 		public function ajax_check_update() {
 			check_ajax_referer('acffqe_check_update', 'nonce');
 			
-			// Clear cache and check for updates
+			$this->debug_log('Manual update check triggered');
+			
+			// Clear all caches and force check
 			delete_transient($this->transient_key);
+			delete_site_transient('update_plugins');
+			
 			$remote_info = $this->get_remote_info();
 			
 			if ($remote_info && version_compare($this->version, $remote_info['version'], '<')) {
-				wp_send_json_success(['update_available' => true, 'version' => $remote_info['version']]);
+				$this->debug_log('Manual check found update: ' . $remote_info['version']);
+				
+				// Force the update check to run
+				$this->force_update_check($remote_info);
+				
+				wp_send_json_success([
+					'update_available' => true, 
+					'version' => $remote_info['version'],
+					'message' => 'Update found! Refreshing page...'
+				]);
 			} else {
+				$this->debug_log('Manual check - no update available');
 				wp_send_json_success(['update_available' => false]);
 			}
+		}
+	
+		/**
+		 * Force WordPress to recognize the update
+		 */
+		private function force_update_check($remote_info) {
+			$update_data = [
+				'slug' => $this->plugin_slug,
+				'plugin' => $this->plugin_basename,
+				'new_version' => $remote_info['version'],
+				'url' => $this->get_github_repo_url(),
+				'package' => $remote_info['download_url'],
+				'icons' => [],
+				'banners' => [],
+				'banners_rtl' => [],
+				'tested' => get_bloginfo('version'),
+				'requires_php' => '7.4',
+				'compatibility' => []
+			];
+			
+			// Get current update_plugins transient
+			$current_updates = get_site_transient('update_plugins');
+			if (!$current_updates) {
+				$current_updates = new stdClass();
+				$current_updates->response = [];
+			}
+			
+			// Add our update
+			$current_updates->response[$this->plugin_basename] = (object) $update_data;
+			
+			// Set it back
+			set_site_transient('update_plugins', $current_updates);
+			
+			// Also cache our data
+			set_transient($this->transient_key, $update_data, 12 * HOUR_IN_SECONDS);
+			
+			$this->debug_log('Forced update data into WordPress transient');
 		}
 	}
