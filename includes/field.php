@@ -12,7 +12,7 @@
 
 		function render_field($field) {
 			$field_id 		= esc_attr( $field[ 'id' ] );
-			$field_value 	= esc_textarea( $field[ 'value' ] );
+			$field_value 	= esc_textarea( $field[ 'value' ] ?? '' );
 
 			// error_log( print_r( $field[ 'value' ], 1 ) );
 ?>
