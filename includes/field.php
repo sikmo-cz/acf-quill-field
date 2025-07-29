@@ -63,6 +63,20 @@
 			return $value;
 		}
 
+		/**
+		 * Runs immediately after the value is loaded from the DB.
+		 */
+		public function format_value( $value, $post_id, $field ) {
+			// If strip_paragraphs is set, remove <p> tags
+			if ( !empty($field['strip_paragraphs']) ) {
+				$value = preg_replace('/<\/p>\s*/i', '<br>', $value);
+				$value = preg_replace('/<p[^>]*>/i', '', $value);
+				$value = preg_replace('/(<br>)+$/', '', $value);
+			}
+
+			return $value;
+		}
+
 		function input_admin_enqueue_scripts() {
 			// Core media scripts + styles
 			wp_enqueue_media();
@@ -119,6 +133,17 @@
 				array( 'clean' ),
 				array( array( 'wp-media' => true ) ),
 			);
+		}
+
+		public function render_field_settings( $field ) {
+			// Add 'Strip paragraphs' true/false setting
+			acf_render_field_setting( $field, array(
+				'label'        => __('Strip paragraphs','acf'),
+				'instructions' => esc_html__('Remove <p> tags from output','acf'),
+				'type'         => 'true_false',
+				'name'         => 'strip_paragraphs',
+				'ui'           => 1,
+			));
 		}
 	}
 
