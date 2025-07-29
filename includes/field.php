@@ -108,12 +108,12 @@
 			return array(
 				array(
 					'value' => 'highlight-yellow',
-					'name' 	=> __('Yellow Highlight', 'acf-quill-field'),
+					'name' 	=> __('Yellow Highlight', 'acffqe'),
 					'class' => 'highlight-yellow'
 				),
 				array(
 					'value' => 'highlight-green',
-					'name' 	=> __('Green Highlight', 'acf-quill-field'),
+					'name' 	=> __('Green Highlight', 'acffqe'),
 					'class' => 'highlight-green'
 				),
 			);
@@ -138,8 +138,8 @@
 		public function render_field_settings( $field ) {
 			// Add 'Strip paragraphs' true/false setting
 			acf_render_field_setting( $field, array(
-				'label'        => __('Strip paragraphs','acf'),
-				'instructions' => esc_html__('Remove <p> tags from output','acf'),
+				'label'        => __('Strip paragraphs','acffqe'),
+				'instructions' => esc_html__('Remove <p> tags from output','acffqe'),
 				'type'         => 'true_false',
 				'name'         => 'strip_paragraphs',
 				'ui'           => 1,
